@@ -1,0 +1,269 @@
+---
+title: "Collage Major and İncome"
+author: 
+  - Güç, Canan[^1]
+bibliography: ../bibliography/biblio.bib
+csl: ../csl/apa.csl
+header-includes:
+  - \usepackage{polyglossia}
+  - \setmainlanguage{english}
+  - \usepackage{booktabs}
+  - \usepackage{caption} 
+  - \captionsetup[table]{skip=10pt}
+output:
+  bookdown::pdf_document2:
+    fig_caption: yes
+    fig_height: 3
+    fig_width: 4
+    keep_tex: no
+    latex_engine: xelatex
+    number_sections: yes
+    toc: no
+geometry: margin=1in
+link-citations: yes
+urlcolor: blue
+fontsize: 12pt
+biblio-style: apalike
+
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = FALSE, echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+
+[^1]: 21080423, [Github Repo](https://github.com/canannguc/FinalC.git)
+
+
+# Introduction
+Social scientists have long been intrigued by the relationship between college major selection and labor-market outcomes, recognizing its significance beyond individual welfare (Patnaik, 2020). Understanding the dynamics of major choices and their influence on the skill composition of the workforce is crucial for comprehending broader economic trends (Chan, 2016). This study aims to examine the association between college majors and labor-market results using data from the American Community Survey 2010-2012 Public Use Microdata Series, released by the US Census Bureau.
+
+Despite considering that various factors such as gender, employment status, working hours, and educational requirements for each occupation used have an effect on preferences (Bartolj, 2012; Patnaik, 2020). This paper will focus on investigating whether there is a correlation between the number of people in majors and income level. The objective is to analyze the data and determine if there is a correlation between the number of people in major categories and the median earnings of full-time workers. Although the accuracy of some factors claimed to be effective in choosing a college major, such as gender distribution, unemployment status, and diploma requirements, wouldn't be tested but their distribution graphs will be analyzed as an output and openly presented for interpretation.
+
+## Literature Review
+
+Existing researchs has highlighted the complexity of college major choices, which can be influenced by a combination of expectations and preferences. Traditional methods relying solely on choice data may lead to biased inferences about decision-making. To address this, recent studies have turned to subjective expectations data alongside choice data to better understand decision-making under uncertainty, particularly in the context of schooling choices (Patnaik, 2020).When it comes to selecting college majors, various factors come into play. These include employment and earnings potential associated with different majors, uncertainty regarding future earnings, labor market trends, family background, influence from peers, and individual aptitude (Patnaik, 2020).While examining employment status across different departments can offer insights, it is clear that employment alone cannot fully explain the choices made regarding college majors. 
+
+Presence of employees in relevant business lines who do not possess a university degree. However, the lower number of such employees compared to those with college degrees raises questions about the value of pursuing a university major (Patnaik, 2020).Today's universities face the challenge of preparing graduates to meet the needs of a rapidly evolving workforce and global economy. However, there has been a shift in higher education from being seen as a public good to being perceived primarily as a private benefit. This shift has transformed colleges and universities into corporate entities driven by economic goals and market-oriented values. Consequently, the focus has shifted from the transformative potential of higher education to a transactional approach (Y. Chan, 2016).To address these challenges, higher education institutions must redefine their curricula, teaching methods, and assessment policies. The aim is to ensure that graduates possess the necessary knowledge, skills, and ethical responsibility to contribute effectively to the global economy and actively engage in democratic processes (Y. Chan, 2016).Given the rising student loan debt and concerns about employment prospects for college graduates, there is a growing interest in providing consumers with more information about the labor market outcomes associated with different college majors (Ruder, 2014).
+
+In exploring gender differences in college major choices, previous studies have utilized choice models. These studies suggest that the disparities can be attributed to variations in preferences, expectations, and gender-specific experiences during college. While factors such as enjoying coursework and gaining parental approval remain important for both genders, there are other preferences that differ between males and females (Patnaik, 2020; Turner & Bowen, 1999; Bartolj, 2012).
+
+# Data
+
+R codes for the analysis should start in this section. In this section, you should include the codes that imports the data set into R and the codes that generate summary statistics.
+
+```{r 1, echo=FALSE}
+library(readxl)
+library(here)
+recent_gradsedit <- read_excel(here("data/recent_gradsedit.xlsx"))
+```
+
+Note that code options are edited in some of the code chunks in the Rmd file.
+
+```{r, echo=FALSE}
+library(dplyr)
+library(xtable) 
+library(summarytools)
+library(readxl) 
+st_options(lang = "en")
+recent_gradsedit <- read_excel(here("data/recent_gradsedit.xlsx"))
+```
+
+
+```{r results='asis', echo=FALSE}
+library(dplyr)
+library(xtable)
+library(summarytools)
+library(ggplot2)
+
+recent_gradsedit %>%
+  select("Total", "Men", "Women", "ShareWomen", "Sample_size", "Employed", "Full_time", "Part_time", "Full_time_year_round", "Unemployed", "Unemployment_rate", "Median", "P25th", "P75th", "College_jobs", "Non_college_jobs", "Low_wage_jobs") %>%
+  descr(stats = c("mean", "sd", "min", "med", "max"), transpose = TRUE) %>%
+  as.data.frame() %>%
+  xtable(caption = "Summary Statistics",
+         label = "tab:summary",
+         align = c("l", "c", "c", "c", "c", "c")) %>%
+  print(booktabs = TRUE, comment = FALSE, caption.placement = "top")
+```
+
+ANOVA TABLES
+
+Anova Total Table
+```{r anova_total, echo=FALSE}
+data_total <- recent_gradsedit %>%
+  select("Total", "Major_category")
+result_total <- aov(Total ~ Major_category, data = data_total)
+anova_table_total <- summary(result_total)[[1]]
+anova_table_total <- as.data.frame(anova_table_total)
+anova_table_total
+plot_anova_total <- ggplot(data_total, aes(x = Major_category, y = Total)) +
+  geom_boxplot() +
+  labs(x = "Major Category", y = "Total", title = "ANOVA Boxplot for Total") +
+  theme_minimal()
+print(plot_anova_total)
+```
+
+```{r An Awesome Plot for Total, echo=FALSE, fig.align='center', fig.cap='An Awesome Plot for Total'}
+library(ggplot2)
+recent_gradsedit %>% 
+  ggplot(aes(x = Total, y = Major_category)) +
+  geom_point() +
+  geom_smooth() +
+  scale_x_continuous("Total") + 
+  scale_y_discrete("Major_category")
+```
+
+
+Anova Median Table
+```{r anova_median, echo=FALSE}
+data_median <- recent_gradsedit %>%
+  select("Median", "Major_category")
+result_median <- aov(Median ~ Major_category, data = data_median)
+anova_table_median <- summary(result_median)[[1]]
+anova_table_median <- as.data.frame(anova_table_median)
+anova_table_median
+plot_anova_median <- ggplot(data_median, aes(x = Major_category, y = Median)) +
+  geom_boxplot() +
+  labs(x = "Major Category", y = "Median", title = "ANOVA Boxplot for Median") +
+  theme_minimal()
+print(plot_anova_median)
+```
+
+
+```{r An Awesome Plot for Median, echo=FALSE, fig.align='center', fig.cap='An Awesome Plot for Median'}
+library(ggplot2)
+recent_gradsedit %>% 
+  ggplot(aes(x = Median, y = Major_category)) +
+  geom_point() +
+  geom_smooth() +
+  scale_x_continuous("Median") + 
+  scale_y_discrete("Major_category")
+```
+
+
+
+Other Graphs
+
+```{r, echo=FALSE}
+library(ggplot2)
+recent_gradsedit %>%
+  ggplot(aes(x = Median, y = Major_category)) +
+  geom_col() +
+  geom_smooth() +
+  scale_x_continuous("Median") +
+  scale_y_discrete("Major_category")
+```
+
+
+
+```{r, echo=FALSE}
+library(ggplot2)
+gender_percent <- recent_gradsedit %>%
+  group_by(Major_category, Men, Women) %>%
+  summarise(Percentage_Men = Men / sum(Men + Women) * 100,
+            Percentage_Women = Women / sum(Men + Women) * 100) %>%
+  ungroup()
+graph_gender_percentage <- ggplot(gender_percent, aes(x = Major_category)) +
+  geom_col(aes(y = Percentage_Men, fill = "Men"), position = "stack", width = 0.5) +
+  geom_col(aes(y = Percentage_Women, fill = "Women"), position = "stack", width = 0.5) +
+  labs(x = "Major Category", y = "Percentage", title = "Gender Percentage by Major Category") +
+  scale_fill_manual(values = c("Men" = "blue", "Women" = "pink")) +
+  theme_minimal()
+print(graph_gender_percentage)
+
+```
+```{r, echo=FALSE}
+library(ggplot2)
+library(dplyr)
+library(ggplot2)
+
+percentage <- recent_gradsedit %>%
+  group_by(Major_category) %>%
+  summarise(Percentage_College = sum(College_jobs) / sum(Total) * 100,
+            Percentage_NonCollege = sum(Non_college_jobs) / sum(Total) * 100) %>%
+  ungroup()
+graph_college_jobs_percentage <- ggplot(percentage, aes(x = Major_category, y = Percentage_College + Percentage_NonCollege, fill = Major_category)) +
+  geom_bar(aes(y = Percentage_College, fill = "College Jobs"), stat = "identity", width = 0.5) +
+  geom_bar(aes(y = Percentage_NonCollege, fill = "Non-College Jobs"), stat = "identity", width = 0.5) +
+  labs(x = "Major Category", y = "Percentage", title = "Percentage of College Jobs and Non-College Jobs by Major Category") +
+  scale_fill_manual(values = c("College Jobs" = "green", "Non-College Jobs" = "red")) +
+  theme_minimal()
+print(graph_college_jobs_percentage)
+```
+```{r, echo=FALSE}
+library(ggplot2)
+library(dplyr)
+
+percentage <- recent_gradsedit %>%
+  group_by(Major_category) %>%
+  summarise(Percentage_Employed = sum(Employed) / sum(Total) * 100,
+            Percentage_Unemployed = sum(Unemployed) / sum(Total) * 100) %>%
+  ungroup()
+
+graph_employment_percentage <- ggplot(percentage, aes(x = Major_category, y = Percentage_Employed + Percentage_Unemployed, fill = Major_category)) +
+  geom_bar(aes(y = Percentage_Employed, fill = "Employed"), stat = "identity", width = 0.5) +
+  geom_bar(aes(y = Percentage_Unemployed, fill = "Unemployed"), stat = "identity", width = 0.5) +
+  labs(x = "Major Category", y = "Percentage", title = "Percentage of Employed and Unemployed Individuals by Major Category") +
+  scale_fill_manual(values = c("Employed" = "blue", "Unemployed" = "orange")) +
+  theme_minimal()
+
+print(graph_employment_percentage)
+```
+
+# Methods and Data Analysis
+This study aims to examine the association between Total number of people with their college majors and median earnings of full-time, year-round workers using data from the American Community Survey 2010-2012 Public Use Microdata Series, released by the US Census Bureau. Data provides information on 19 variables, it enables us to conclusion about educational and career decisions.
+
+İnvestigating for the there is a correlation between the number of people in major categories and the median earnings of full-time workers and to measure that the expectation of a department's income increases the number of times the departments are selected, Two Anova test performed applied for investigate the relationship between the variables "Total" and "Median" with the "Major_category" as the predictor. 
+
+First Anova test "Total" as a variable:
+
+H0 (Null Hypothesis): There is no significant difference in the means of the "Total" variable across different "Major_category" groups.
+
+HA (Alternative Hypothesis): There is a significant difference in the means of the "Total" variable across different "Major_category" groups.
+
+Result: The ANOVA table shows that the F-value is 1.716207 and the p-value is 0.05271355. Since the p-value (0.05271355) is greater than the significance level (usually 0.05), we fail to reject the null hypothesis. This suggests that there is not enough evidence to conclude that there is a significant difference in the means of the "Total" variable across different "Major_category" groups.
+
+Second Anova test "Total" as a variable:
+
+H0 (Null Hypothesis): There is no significant difference in the means of the "Median" variable across different "Major_category" groups.
+HA (Alternative Hypothesis): There is a significant difference in the means of the "Median" variable across different "Major_category" groups.
+
+Result:The ANOVA table shows that the F-value is 13.99883 and the p-value is 4.787305e-22. Since the p-value (4.787305e-22) is significantly smaller than the significance level, we can reject the null hypothesis. This suggests that there is sufficient evidence to conclude that there is a significant difference in the means of the "Median" variable across different "Major_category" groups.
+
+The results shows that the median earnings of full-time workers vary significantly across different major category groups. However, the number of people in each major category does not exhibit a significant difference across the groups. This implies that while the choice of major may impact the earnings of individuals, it may not necessarily affect the number of individuals selecting a specific major.
+In conclusion, the ANOVA tests provide evidence of a correlation between the median earnings of full-time workers and the major categories, but no significant correlation between the total number of individuals and the major categories.
+
+The Gender Distrubution graph shows that, in major categories like Engineering, Computers & Mathematics, and Physical Sciences percentage of men is noticeably higher than the percentage of women. Conversely, in major categories such as Health, Education, and Arts, the percentage of women is higher than the percentage of men.Which means they have significant gender imbalance. But in some major categories like Business, Social Sciences, and Communications & Journalism,  the percentage of men and women is relatively similar. Which means there is a relatively balanced majors in terms of gender distrubution. 
+
+The Graph for distribution of college jobs and non-college jobs across various major categories shows that, Certain major categories, such as Engineering, Computers & Mathematics, and Physical Sciences, have a higher proportion of college jobs compared to non-college jobs. On the other hand, major categories such as Arts, Education, and Humanities & Liberal Arts have a higher percentage of non-college jobs. This indicates that individuals in these majors may find employment opportunities that do not necessarily require a college degree.
+
+The Graph for percentage of employed and unemployed individuals within each major category shows that The employment rates differ significantly among major categories. Major categories such as Engineering, Computers & Mathematics, and Health have relatively higher percentages of employed individuals.On the other hand, major categories such as Arts, Education, and Humanities & Liberal Arts show higher percentages of unemployed individuals. 
+
+
+
+# Conclusion
+This study shows there is a correlation between median earnings and major categories. Which means major choices can impact the earnings of full-time workers. However,there is no significant correlation between the total number of individuals and major categories. Because of the career decisions depends on various factors, such as individual preferences, socioeconomic factors, and job market dynamics etc. Even though it is known that the expectation about income level is one of the factors affecting the major choice, a clear correlation couldn't defined between the expectation about income level and the major preference in our study. 
+```{r}
+```
+
+
+```{r}
+```
+
+Tables related to gender, certification and unemployment provide us information about the characteristics of the Major Categories. In the light of this information, we can state that these characteristics of categories can also be effective in the preferences of individuals.
+
+\newpage
+# References {#references}
+<div id="refs"></div>
+
+Patnaik,Arpita, ''Collage Majors'' Nber Working Paper Series, 2020
+{https://www.nber.org/papers/w27645}
+
+Ruder,Alex ''The Influence of Labor Market Outcomes Data on Major Choice: Evidence from a Survey Experiment'', 2014 
+{https://files.eric.ed.gov/fulltext/ED565471.pdf}
+
+Chan Y. ''Understanding the Purpose of Higher Education: An Analysis of the Economic and Social Benefits for Completing a College Degree'' 2016
+{https://scholar.harvard.edu/sites/scholar.harvard.edu/files/roychan/files/chan_r._y._2016._understanding_the_purpose_aim_function_of_higher_education._jeppa_65_1-40.pdf}
+
+Bartolja, Tjasa ''College major choice and ability: Why is general ability not enough?'' 2012
+{https://www.sciencedirect.com/science/article/abs/pii/S0272775712000878}
+

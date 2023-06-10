@@ -1,0 +1,29 @@
+---
+title: "finalc"
+output: html_document
+date: "2023-04-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+# install.packages("devtools")
+devtools::install_github("r-lib/conflicted")
+```
+
+```{r}
+recent_grads <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-10-16/recent-grads.csv")
+```
+
+```{r}
+load("~/Documents/GitHub/FinalC/data/recent_gradsedit.RData")
+```
+
+```{r}
+View(recent_gradsedit) 
+```
+
